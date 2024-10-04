@@ -10,7 +10,7 @@ public class FollowWaypoints : MonoBehaviour
     public float distance = 0.1f;
     public List<GameObject> waypoints;
 
-    public void setFollowWaypoints(List<GameObject> waypoints)
+    public void SetFollowWaypoints(List<GameObject> waypoints)
     {
         this.waypoints = new List<GameObject> (waypoints);
     }

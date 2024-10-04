@@ -5,16 +5,17 @@ using UnityEngine;
 
 public class HealthPoints : MonoBehaviour
 {
-    public int hp
+    public int hp;
+
+
+    public int GetHp() { return hp; }
+
+    public void SetHp(int hp)
     {
-        get { return hp; }
-        set
+        this.hp -= hp;
+        if (this.hp <= 0)
         {
-            hp = value;
-            if(hp <= 0)
-            {
-                Destroy(gameObject);
-            }
+            Destroy(this.transform.gameObject);
         }
     }
 

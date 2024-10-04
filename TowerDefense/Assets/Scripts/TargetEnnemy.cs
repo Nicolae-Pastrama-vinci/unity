@@ -4,44 +4,79 @@ using UnityEngine;
 
 public class TargetEnnemy : MonoBehaviour
 {
-    List<GameObject> targets  = new List<GameObject>();
-    public Transform crystal;
-    bool coroutineIsRuning = false;
+    public List<GameObject> targets = new List<GameObject>();
+    public bool coroutineIsRuning = false;
+    public Transform firePoint;
+    public LineRenderer laser;
+    public int damage = 25;
+    public float fireRate = 0.5f;
 
     private void Start()
     {
-        coroutineIsRuning=true;
+        coroutineIsRuning = true;
         StartCoroutine(ShotTheEnnemy());
         StartCoroutine(LookAtEnnemy());
+        laser.enabled = false;
     }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "ennemy")
+        if (other.gameObject.CompareTag("ennemy"))
         {
-            targets.Add(other.gameObject);
+            if (!targets.Contains(other.gameObject)) // Assure que l'ennemi n'est pas déjà dans la liste
+            {
+                targets.Add(other.gameObject);
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(other.gameObject.tag == "ennemy")
+        if (other.gameObject.CompareTag("ennemy"))
         {
-            targets.Remove(other.gameObject);
+            if (targets.Contains(other.gameObject))
+            {
+                targets.Remove(other.gameObject);
+                laser.enabled = false;
+            }
         }
+    }
+
+    void Laser()
+    {
+        laser.enabled = true;
+        laser.SetPosition(0, firePoint.position);
+        laser.SetPosition(1, targets[0].transform.position);
     }
 
     public IEnumerator ShotTheEnnemy()
     {
-        while(coroutineIsRuning)
+        while (coroutineIsRuning)
         {
             if (targets.Count > 0)
             {
-                targets[0].GetComponent<HealthPoints>().hp -= 100;
-                yield return new WaitForSeconds(1);
+                // Vérifie que le premier ennemi de la liste est encore valide et actif
+                if (targets[0] != null && targets[0].activeInHierarchy)
+                {
+                    HealthPoints hp = targets[0].GetComponent<HealthPoints>();
+                    if (hp != null)
+                    {
+                        targets[0].GetComponent<HealthPoints>().SetHp(damage);
+                    }
+                }
+                else
+                {
+                    // Retire l'ennemi s'il n'est plus valide
+                    laser.enabled = false;
+                    targets.RemoveAt(0);
+                }
+                yield return new WaitForSeconds(fireRate);
+            }
+            else
+            {
+                yield return null;
             }
         }
-        
-        yield return null;
     }
 
     public IEnumerator LookAtEnnemy()
@@ -50,11 +85,23 @@ public class TargetEnnemy : MonoBehaviour
         {
             if (targets.Count > 0)
             {
-                transform.Rotate(targets[0].transform.position);
-            }
-            
-        }
-        yield return null;
+                if (targets[0] != null && targets[0].activeInHierarchy) // Vérifie que la cible est valide
+                {
 
+                    
+                    Laser();
+                    Vector3 lookDir = targets[0].transform.position - transform.position;
+                    lookDir.y = 0; // keep only the horizontal direction
+                    transform.rotation = Quaternion.LookRotation(lookDir);
+                }
+                else
+                {
+                    
+                    // Retire l'ennemi de la liste si invalide
+                    targets.RemoveAt(0);
+                }
+            }
+            yield return null;
+        }
     }
 }

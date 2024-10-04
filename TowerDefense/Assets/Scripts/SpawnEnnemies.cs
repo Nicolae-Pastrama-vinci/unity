@@ -32,7 +32,7 @@ public class SpawnEnnemies : MonoBehaviour
         if (mob.GetComponent<FollowWaypoints>() != null)
         {
             mob.transform.localScale = new Vector3(15,15,15);
-            mob.GetComponent<FollowWaypoints>().setFollowWaypoints(waypoints);
+            mob.GetComponent<FollowWaypoints>().SetFollowWaypoints(waypoints);
             mob.GetComponent<FollowWaypoints>().enabled = true;
         }
         
