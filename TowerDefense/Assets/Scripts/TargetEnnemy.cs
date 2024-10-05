@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class TargetEnnemy : MonoBehaviour
 {
@@ -8,8 +9,9 @@ public class TargetEnnemy : MonoBehaviour
     public bool coroutineIsRuning = false;
     public Transform firePoint;
     public LineRenderer laser;
-    public int damage = 25;
     public float fireRate = 0.5f;
+    public GameObject fireBall;
+    public List<GameObject> fireBalls = new List<GameObject> ();
 
     private void Start()
     {
@@ -38,6 +40,8 @@ public class TargetEnnemy : MonoBehaviour
             {
                 targets.Remove(other.gameObject);
                 laser.enabled = false;
+
+
             }
         }
     }
@@ -56,19 +60,15 @@ public class TargetEnnemy : MonoBehaviour
             if (targets.Count > 0)
             {
                 // Vérifie que le premier ennemi de la liste est encore valide et actif
-                if (targets[0] != null && targets[0].activeInHierarchy)
+                if (targets[0] != null)
                 {
                     HealthPoints hp = targets[0].GetComponent<HealthPoints>();
                     if (hp != null)
                     {
-                        targets[0].GetComponent<HealthPoints>().SetHp(damage);
+                        GameObject ball = Instantiate(fireBall);
+                        ball.GetComponent<FireBall>().target = targets[0];
+                        fireBalls.Add(ball);
                     }
-                }
-                else
-                {
-                    // Retire l'ennemi s'il n'est plus valide
-                    laser.enabled = false;
-                    targets.RemoveAt(0);
                 }
                 yield return new WaitForSeconds(fireRate);
             }
@@ -86,9 +86,7 @@ public class TargetEnnemy : MonoBehaviour
             if (targets.Count > 0)
             {
                 if (targets[0] != null && targets[0].activeInHierarchy) // Vérifie que la cible est valide
-                {
-
-                    
+                { 
                     Laser();
                     Vector3 lookDir = targets[0].transform.position - transform.position;
                     lookDir.y = 0; // keep only the horizontal direction
@@ -96,9 +94,13 @@ public class TargetEnnemy : MonoBehaviour
                 }
                 else
                 {
-                    
+                    laser.enabled = false;
                     // Retire l'ennemi de la liste si invalide
                     targets.RemoveAt(0);
+                    foreach (GameObject b in fireBalls)
+                    {
+                        Destroy(b);
+                    }
                 }
             }
             yield return null;

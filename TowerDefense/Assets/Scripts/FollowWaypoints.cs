@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class FollowWaypoints : MonoBehaviour
 {
-    public float speed = 1f;
+    public float speed = 2f;
     public int nextWaypoint = 1;
     public float distance = 0.1f;
     public List<GameObject> waypoints;
